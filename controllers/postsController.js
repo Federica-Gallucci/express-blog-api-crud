@@ -1,4 +1,4 @@
-const posts = require("../data/posts");
+const { posts } = require("../data/posts");
 
 const index = (req, res) => {
   res.json({
@@ -33,13 +33,25 @@ const modify = (req, res) => {
 };
 
 const destroy = (req, res) => {
-  const id = parseInt(req.params.id);
-  posts = posts.filter((currentPost) => currentPost.id !== id);
+  const postId = parseInt(req.params.id);
+  const post = posts.find((post) => post.id === postId);
+
+  if (!post) {
+    res.status(404);
+    res.json({
+      error: "404 Not Found",
+      message: "Post Not Found",
+    });
+    return;
+  }
 
   res.json({
-    description: "Eliminazione del post " + id,
     data: posts,
+    status: 204,
   });
+
+  const postIndex = posts.includes(post);
+  posts.slice(postIndex, 1);
 };
 
 module.exports = { index, show, store, update, modify, destroy };
