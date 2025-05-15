@@ -10,6 +10,16 @@ const index = (req, res) => {
 const show = (req, res) => {
   const id = parseInt(req.params.id);
   const post = posts.find((currentPost) => currentPost.id === id);
+
+  if (!post) {
+    res.status(404);
+    res.json({
+      error: "404 Not Found",
+      message: "Post Not Found",
+    });
+    return;
+  }
+
   res.json({
     description: "Lettura del post " + id,
     data: post,
@@ -17,7 +27,49 @@ const show = (req, res) => {
 };
 
 const store = (req, res) => {
-  res.json("creazione di un nuovo post");
+  // console.log(req.body);
+  // console.log("____________");
+  const { title, content, image, tags } = req.body;
+
+  // controlli
+
+  let isRequestMalformed = false;
+  if (!title || typeof title !== "string") {
+    isRequestMalformed = true;
+  }
+  if (!content || typeof content !== "string") {
+    isRequestMalformed = true;
+  }
+  if (typeof image !== "string") {
+    isRequestMalformed = true;
+  }
+  if (!Array.isArray(tags)) {
+    isRequestMalformed = true;
+  }
+  if (isRequestMalformed) {
+    res.status(400);
+    res.json({
+      error: "400 Bad Request",
+      message: "Request is Malformed",
+    });
+    return;
+  }
+
+  //
+
+  let maxId = 0;
+  for (const post of posts) {
+    if (post.id > maxId) maxId = post.id;
+  }
+  const newPost = { id: maxId + 1, title, content, image, tags };
+  console.log(newPost);
+  console.log("_________");
+  posts.push(newPost);
+  console.log(posts);
+
+  res.status(201);
+
+  res.json(newPost);
 };
 
 const update = (req, res) => {
@@ -45,13 +97,14 @@ const destroy = (req, res) => {
     return;
   }
 
+  const postIndex = posts.includes(post);
+  posts.splice(postIndex, 1);
+  console.log(posts);
+
   res.json({
     data: posts,
     status: 204,
   });
-
-  const postIndex = posts.includes(post);
-  posts.slice(postIndex, 1);
 };
 
 module.exports = { index, show, store, update, modify, destroy };
