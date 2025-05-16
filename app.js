@@ -1,6 +1,8 @@
 // imports
 const express = require("express");
 const postsRouter = require(`./routers/posts`);
+const notFound = require("./middleweares/notFound");
+const errorHandler = require("./middleweares/errorHandler");
 
 // express app config
 const app = express();
@@ -13,6 +15,10 @@ app.use(express.json()); // body parsers
 
 // routers
 app.use("/posts", postsRouter);
+
+// middleweares
+app.use(notFound);
+app.use(errorHandler);
 
 //  web server listening
 app.listen(appPort, () => {
