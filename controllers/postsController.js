@@ -124,9 +124,36 @@ const update = (req, res) => {
 };
 
 const modify = (req, res) => {
-  const id = parseInt(req.params.id);
+  const postId = parseInt(req.params.id);
+  const post = posts.find((currentPost) => currentPost.id === postId);
 
-  res.json("Modifica del post " + id);
+  //  handle not found
+  if (!post) {
+    res.status(404);
+    res.json({
+      error: "404 Not Found",
+      message: "Post Not Found",
+    });
+    return;
+  }
+
+  const { title, content, image, tags } = req.body;
+
+  if (title) {
+    post.title = title;
+  }
+  if (content) {
+    post.content = content;
+  }
+  if (image) {
+    post.image = image;
+  }
+  if (tags) {
+    post.tags = tags;
+  }
+
+  res.json(posts);
+  console.log(posts);
 };
 
 const destroy = (req, res) => {
