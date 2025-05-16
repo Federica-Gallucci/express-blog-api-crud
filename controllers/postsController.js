@@ -73,9 +73,54 @@ const store = (req, res) => {
 };
 
 const update = (req, res) => {
-  const id = parseInt(req.params.id);
+  const postId = parseInt(req.params.id);
+  const post = posts.find((currentPost) => currentPost.id === postId);
 
-  res.json("Sostituzione del post " + id);
+  //  handle not found
+  if (!post) {
+    res.status(404);
+    res.json({
+      error: "404 Not Found",
+      message: "Post Not Found",
+    });
+    return;
+  }
+
+  // controlli
+  const { title, content, image, tags } = req.body;
+  const malformedElements = [];
+
+  if (!title || typeof title !== "string") {
+    malformedElements.push("title");
+  }
+  if (!content || typeof content !== "string") {
+    malformedElements.push("content");
+  }
+  if (typeof image !== "string") {
+    malformedElements.push("image");
+  }
+  if (!Array.isArray(tags)) {
+    malformedElements.push("tags");
+  }
+  console.log(malformedElements);
+  if (malformedElements.length > 0) {
+    res.status(400);
+    res.json({
+      error: "400 Bad Request",
+      message: "Request is Malformed",
+    });
+    return;
+  }
+
+  // handle success
+
+  post.title = title;
+  post.content = content;
+  post.image = image;
+  post.id = postId;
+  post.tags = tags;
+  res.json(posts);
+  console.log(posts);
 };
 
 const modify = (req, res) => {
@@ -88,6 +133,7 @@ const destroy = (req, res) => {
   const postId = parseInt(req.params.id);
   const post = posts.find((post) => post.id === postId);
 
+  //  handle not found
   if (!post) {
     res.status(404);
     res.json({
